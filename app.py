@@ -68,7 +68,6 @@ def not_found(error):
 
 
 ## WRITE DOs
-
 @app.route('/api/' + api_ver + '/write/' + do + '/<io_num>/<val>', methods=['GET'])
 def write_outputs_do(io_num=None, val=None):
     gpio = digital_out(io_num)
