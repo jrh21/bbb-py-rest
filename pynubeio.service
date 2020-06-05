@@ -1,0 +1,14 @@
+[Unit]
+Description=Flask Application for 
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/debian/io_server
+Environment="FLASK_APP=/home/debian/io_server/app.py"
+ExecStart= /usr/bin/flask run --host 0.0.0.0
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
