@@ -32,6 +32,9 @@ in ip tables -A is to add and -D is to delete an entry
 sudo iptables -A INPUT -p tcp -s localhost --dport 5000 -j ACCEPT
 // drop all other hosts
 sudo  iptables -A INPUT -p tcp --dport 5000 -j DROP
+// then save the tables
+!!! Not tested
+https://upcloud.com/community/tutorials/configure-iptables-centos/
 
 // to remove a rule
 sudo iptables -D INPUT -p tcp --dport 5000 -j DROP
