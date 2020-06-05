@@ -23,6 +23,24 @@ sudo pip install Adafruit_BBIO
 ```
 
 
+##### block port 5000
+
+in ip tables -A is to add and -D is to delete an entry
+
+```
+// only allow localhost access to port 5000
+sudo iptables -A INPUT -p tcp -s localhost --dport 5000 -j ACCEPT
+// drop all other hosts
+sudo  iptables -A INPUT -p tcp --dport 5000 -j DROP
+
+// to remove a rule
+sudo iptables -D INPUT -p tcp --dport 5000 -j DROP
+
+```
+
+
+
+
 ### API calls
 
 #### UOs
