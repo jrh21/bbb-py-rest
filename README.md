@@ -63,7 +63,20 @@ sudo iptables -D INPUT -p tcp --dport 5000 -j DROP
 ```
 
 
-### IO Values
+### API for the GPIO
+
+```
+IO_TYPES
+ui, uo, di, do
+
+// read 
+/read/IO_TYPE/IO_Number
+// read all IOs as per type. like /read/all/ui
+/read/all/IO_TYPE
+
+
+
+```
 
 #### Read a UI as a DI (jumper needs to be set to 10K)
 off/open = around 0.9 vdc
