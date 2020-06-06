@@ -17,47 +17,47 @@ do_table = db.table('do_table')
 di_table = db.table('di_table')
 IO_DB = Query()
 
-# #
-# # bbb gpio lib
-# import Adafruit_BBIO.GPIO as GPIO
-# import Adafruit_BBIO.PWM as PWM
-# import Adafruit_BBIO.GPIO as GPIO
-# import Adafruit_BBIO.ADC as ADC
 #
-# # DOs
-# GPIO.setup("P8_7", GPIO.OUT)
-# GPIO.setup("P8_8", GPIO.OUT)
-# GPIO.setup("P8_9", GPIO.OUT)
-# GPIO.setup("P8_10", GPIO.OUT)
-# GPIO.setup("P8_12", GPIO.OUT)
-# GPIO.setup("P9_29", GPIO.OUT)
-# GPIO.setup("P9_12", GPIO.OUT)
+# bbb gpio lib
+import Adafruit_BBIO.GPIO as GPIO
+import Adafruit_BBIO.PWM as PWM
+import Adafruit_BBIO.GPIO as GPIO
+import Adafruit_BBIO.ADC as ADC
+
+# DOs
+GPIO.setup("P8_7", GPIO.OUT)
+GPIO.setup("P8_8", GPIO.OUT)
+GPIO.setup("P8_9", GPIO.OUT)
+GPIO.setup("P8_10", GPIO.OUT)
+GPIO.setup("P8_12", GPIO.OUT)
+GPIO.setup("P9_29", GPIO.OUT)
+GPIO.setup("P9_12", GPIO.OUT)
+
+# UOs
+# UOs 0 = 0vdc and 100 = 12vdc
+# PWM.start("P9_14", 0, 1000, 1) // for startup
+# PWM.set_duty_cycle("P9_14", 0) //write 0v
+# PWM.set_duty_cycle("P9_14",100) //write 12v
 #
-# # UOs
-# # UOs 0 = 0vdc and 100 = 12vdc
-# # PWM.start("P9_14", 0, 1000, 1) // for startup
-# # PWM.set_duty_cycle("P9_14", 0) //write 0v
-# # PWM.set_duty_cycle("P9_14",100) //write 12v
-# #
-# PWM.start("P8_13", 0, 1000, 1)  # for startup
-# PWM.start("P9_14", 0, 1000, 1)
-# PWM.start("P9_21", 0, 1000, 1)
-# PWM.start("P9_42", 0, 1000, 1)
-# PWM.start("P8_19", 0, 1000, 1)
-# PWM.start("P9_16", 0, 1000, 1)
-# PWM.start("P9_22", 0, 1000, 1)
-#
-# # DIs
-# GPIO.setup("P9_30", GPIO.IN)
-# GPIO.setup("P9_15", GPIO.IN)
-# GPIO.setup("P9_31", GPIO.IN)
-# GPIO.setup("P9_28", GPIO.IN)
-# GPIO.setup("P9_23", GPIO.IN)
-# GPIO.setup("P9_25", GPIO.IN)
-# GPIO.setup("P9_27", GPIO.IN)
-#
-# # AIs
-# ADC.setup()
+PWM.start("P8_13", 0, 1000, 1)  # for startup
+PWM.start("P9_14", 0, 1000, 1)
+PWM.start("P9_21", 0, 1000, 1)
+PWM.start("P9_42", 0, 1000, 1)
+PWM.start("P8_19", 0, 1000, 1)
+PWM.start("P9_16", 0, 1000, 1)
+PWM.start("P9_22", 0, 1000, 1)
+
+# DIs
+GPIO.setup("P9_30", GPIO.IN)
+GPIO.setup("P9_15", GPIO.IN)
+GPIO.setup("P9_31", GPIO.IN)
+GPIO.setup("P9_28", GPIO.IN)
+GPIO.setup("P9_23", GPIO.IN)
+GPIO.setup("P9_25", GPIO.IN)
+GPIO.setup("P9_27", GPIO.IN)
+
+# AIs
+ADC.setup()
 
 # api stuff
 api_ver = 'v1.0'  # change version number as needed
@@ -93,12 +93,12 @@ def write_outputs_do(io_num=None, val=None):
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': digitalOutTypes}), http_error
     elif val is True:
-        # GPIO.output(gpio, GPIO.HIGH)
+        GPIO.output(gpio, GPIO.HIGH)
         do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
     elif val is False:
-        # GPIO.output(gpio, GPIO.LOW)
+        GPIO.output(gpio, GPIO.LOW)
         do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
@@ -119,7 +119,7 @@ def write_outputs_ao(io_num=None, val=None):
     elif is_float(val):
         val = float(val)
         if 0 <= val <= 100:
-            # PWM.set_duty_cycle(gpio, val)
+            PWM.set_duty_cycle(gpio, val)
             ao_table.update({'val': val}, IO_DB.gpio == gpio)
             return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                             '5_msg': 'wrote value to the GPIO'}), http_success
@@ -172,9 +172,9 @@ def read_di(io_num=None):
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
                         "5_msg": digitalInTypes}), http_error
     else:
-        # val = GPIO.input(gpio)
-        val = bool(random.getrandbits(1))  # for testing
-        val = int(val)  # for testing
+        val = GPIO.input(gpio)
+        # val = bool(random.getrandbits(1))  # for testing
+        # val = int(val)  # for testing
         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': 'read value ok'}), http_success
 
@@ -188,50 +188,55 @@ def read_ai(io_num=None):
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
                         "5_msg": analogInTypes}), http_error
     else:
-        # val = ADC.read(gpio)
-        val = random.uniform(0, 1)  # for testing
+        val = ADC.read(gpio)
+        # val = random.uniform(0, 1)  # for testing
         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': 'read value ok'}), http_success
 
 
 # READ ALL DIs
-
 @app.route('/api/' + api_ver + '/read/all/' + di, methods=['GET'])
 def read_di_all():
-    case_list = random.uniform(0, 1)  # for testing
-    # case_list = {}
-    # for key, value in digitalInTypes.items():
-    #     case = {"val": GPIO.input(value)}
-    #     case_list[key] = case
-
+    # case_list = random.uniform(0, 1)  # for testing
+    case_list = {}
+    for key, value in digitalInTypes.items():
+        case = {"val": GPIO.input(value)}
+        case_list[key] = case
     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
                     '5_msg': 'read DIs ok'}), http_success
 
 
 # READ ALL UIs
-
 @app.route('/api/' + api_ver + '/read/all/' + ui, methods=['GET'])
 def read_ai_all():
-    case_list = random.uniform(0, 1)  # for testing
-    # case_list = {}
-    # for key, value in analogInTypes.items():
-    #     case = {"val": ADC.read(value)}
-    #     case_list[key] = case
+    # case_list = random.uniform(0, 1)  # for testing
+    case_list = {}
+    for key, value in analogInTypes.items():
+        case = {"val": ADC.read(value)}
+        case_list[key] = case
     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
                     '5_msg': 'read UIs ok'}), http_success
 
 
 # READ DOs
-
 @app.route('/api/' + api_ver + '/read/all/' + do, methods=['GET'])
-def read_do_all(io_num=None):
-    gpio = digital_out(io_num)
-    io_num = io_num.upper()
-        val = do_table.get(Query()['gpio'] == gpio)
-        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
-                        '5_msg': 'read value ok'}), http_success
+def read_do_all():
+    case_list = {}
+    for item in do_table:
+        case = {"val": item['val']}
+        case_list[item['ioNum']] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                        '5_msg': 'read DOs ok'}), http_success
 
-
+# READ AOs
+@app.route('/api/' + api_ver + '/read/all/' + uo, methods=['GET'])
+def read_ao_all():
+    case_list = {}
+    for item in ao_table:
+        case = {"val": item['val']}
+        case_list[item['ioNum']] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                        '5_msg': 'read UOs ok'}), http_success
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
