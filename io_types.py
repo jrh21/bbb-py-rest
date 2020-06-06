@@ -37,3 +37,4 @@ digitalOutTypes = {
     'R1': 'P9_29',
     'R2': 'P9_12',
 }
+
