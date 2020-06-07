@@ -1,11 +1,12 @@
 #!flask/bin/python
 
 # rest server
-import random
+
 from tinydb import TinyDB, Query
 from flask import Flask, jsonify, make_response
 from func import command_to_bool, is_float, analog_in, analog_out, digital_in, digital_out
 from io_types import analogInTypes, analogOutTypes, digitalInTypes, digitalOutTypes
+from tests.test_data import case_list_test_analogue, case_list_test_digital, fake_analogue_data, fake_digital_data
 
 app = Flask(__name__)
 
@@ -17,8 +18,8 @@ do_table = db.table('do_table')
 di_table = db.table('di_table')
 IO_DB = Query()
 #
-# #
-# # bbb gpio lib
+# # #
+# # # bbb gpio lib
 # import Adafruit_BBIO.GPIO as GPIO
 # import Adafruit_BBIO.PWM as PWM
 # import Adafruit_BBIO.GPIO as GPIO
@@ -60,7 +61,7 @@ IO_DB = Query()
 # ADC.setup()
 
 # api stuff
-api_ver = 'v1.0'  # change version number as needed
+api_ver = '1.1'  # change version number as needed
 uo = 'uo'
 ui = 'ui'
 do = 'do'
@@ -93,12 +94,12 @@ def write_outputs_do(io_num=None, val=None):
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': digitalOutTypes}), http_error
     elif val is True:
-        # GPIO.output(gpio, GPIO.HIGH)
+        # GPIO.output(gpio, GPIO.HIGH)  # !! GPIO CALL !!!
         do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
     elif val is False:
-        # GPIO.output(gpio, GPIO.LOW)
+        # GPIO.output(gpio, GPIO.LOW)  # !! GPIO CALL !!!
         do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
@@ -119,7 +120,7 @@ def write_outputs_ao(io_num=None, val=None):
     elif is_float(val):
         val = float(val)
         if 0 <= val <= 100:
-            # PWM.set_duty_cycle(gpio, val)
+            # PWM.set_duty_cycle(gpio, val)  # !! GPIO CALL !!!
             ao_table.update({'val': val}, IO_DB.gpio == gpio)
             return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                             '5_msg': 'wrote value to the GPIO'}), http_success
@@ -131,7 +132,84 @@ def write_outputs_ao(io_num=None, val=None):
                         '5_msg': 'value must be a float'}), http_error
 
 
-# READ DOs
+# READ DIs
+
+
+@app.route('/api/' + api_ver + '/read/' + di + '/<io_num>', methods=['GET'])
+def read_di(io_num=None):
+    gpio = digital_in(io_num)
+    if gpio == -1:
+        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
+                        "5_msg": digitalInTypes}), http_error
+    else:
+        # val = GPIO.input(gpio)   # !! GPIO CALL !!!
+        val = fake_digital_data()  # !!! FOR TESTING !!!
+        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
+                        '5_msg': 'read value ok'}), http_success
+
+
+#  READ UIs
+
+@app.route('/api/' + api_ver + '/read/' + ui + '/<io_num>', methods=['GET'])
+def read_ai(io_num=None):
+    gpio = analog_in(io_num)
+    if gpio == -1:
+        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
+                        "5_msg": analogInTypes}), http_error
+    else:
+        # val = ADC.read(gpio)  # !!! GPIO CALL !!!
+        val = fake_analogue_data()  # !!! FOR TESTING !!!
+        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
+                        '5_msg': 'read value ok'}), http_success
+
+
+# READ ALL DIs
+@app.route('/api/' + api_ver + '/read/all/' + di, methods=['GET'])
+def read_di_all():
+    case_list = case_list_test_digital  # !!! FOR TESTING !!!
+    # case_list = {}
+    # for key, value in digitalInTypes.items():
+    #     # case = {"val": GPIO.input(value)}
+    #     case_list[key] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                    '5_msg': 'read DIs ok'}), http_success
+
+
+# READ ALL UIs
+@app.route('/api/' + api_ver + '/read/all/' + ui, methods=['GET'])
+def read_ai_all():
+    case_list = case_list_test_analogue  # !!! FOR TESTING !!!
+    # case_list = {}
+    # for key, value in analogInTypes.items():
+    #     case = {"val": ADC.read(value)}
+    #     case_list[key] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                    '5_msg': 'read UIs ok'}), http_success
+
+
+# READ ALL DOs
+@app.route('/api/' + api_ver + '/read/all/' + do, methods=['GET'])
+def read_do_all():
+    case_list = {}
+    for item in do_table:
+        case = {"val": item['val']}
+        case_list[item['ioNum']] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                    '5_msg': 'read DOs ok'}), http_success
+
+
+# READ ALL AOs
+@app.route('/api/' + api_ver + '/read/all/' + uo, methods=['GET'])
+def read_ao_all():
+    case_list = {}
+    for item in ao_table:
+        case = {"val": item['val']}
+        case_list[item['ioNum']] = case
+    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+                    '5_msg': 'read UOs ok'}), http_success
+
+
+# READ A DO
 
 @app.route('/api/' + api_ver + '/read/' + do + '/<io_num>', methods=['GET'])
 def read_do(io_num=None):
@@ -147,7 +225,7 @@ def read_do(io_num=None):
                         '5_msg': 'read value ok'}), http_success
 
 
-# READ AOs
+# READ A AO
 
 @app.route('/api/' + api_ver + '/read/' + uo + '/<io_num>', methods=['GET'])
 def read_ao(io_num=None):
@@ -161,95 +239,6 @@ def read_ao(io_num=None):
         val = result.get("val")
         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': 'read value ok'}), http_success
-
-
-# READ DIs
-
-@app.route('/api/' + api_ver + '/read/' + di + '/<io_num>', methods=['GET'])
-def read_di(io_num=None):
-    gpio = digital_in(io_num)
-    if gpio == -1:
-        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
-                        "5_msg": digitalInTypes}), http_error
-    else:
-        # val = GPIO.input(gpio)
-        # val = bool(random.getrandbits(1))  # for testing
-        # val = int(val)  # for testing
-        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
-                        '5_msg': 'read value ok'}), http_success
-
-
-#  READ UIs
-
-@app.route('/api/' + api_ver + '/read/' + ui + '/<io_num>', methods=['GET'])
-def read_ai(io_num=None):
-    gpio = analog_in(io_num)
-    if gpio == -1:
-        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
-                        "5_msg": analogInTypes}), http_error
-    else:
-        # val = ADC.read(gpio)
-        # val = random.uniform(0, 1)  # for testing
-        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
-                        '5_msg': 'read value ok'}), http_success
-
-
-# READ ALL DIs
-@app.route('/api/' + api_ver + '/read/all/' + di, methods=['GET'])
-def read_di_all():
-    # case_list = random.uniform(0, 1)  # for testing
-    case_list = {}
-    # for key, value in digitalInTypes.items():
-    #     case = {"val": GPIO.input(value)}
-    #     case_list[key] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read DIs ok'}), http_success
-
-
-# READ ALL UIs
-@app.route('/api/' + api_ver + '/read/all/' + ui, methods=['GET'])
-def read_ai_all():
-    # case_list = random.uniform(0, 1)  # for testing
-    case_list = {}
-    # for key, value in analogInTypes.items():
-    #     case = {"val": ADC.read(value)}
-    #     case_list[key] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read UIs ok'}), http_success
-
-
-# READ DOs
-@app.route('/api/' + api_ver + '/read/all/' + do, methods=['GET'])
-def read_do_all():
-    case_list = {}
-    for item in do_table:
-        case = {"val": item['val']}
-        case_list[item['ioNum']] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read DOs ok'}), http_success
-
-
-# READ AOs
-@app.route('/api/' + api_ver + '/read/all/' + uo, methods=['GET'])
-def read_ao_all():
-    case_list = {}
-    for item in ao_table:
-        case = {"val": item['val']}
-        case_list[item['ioNum']] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read UOs ok'}), http_success
-
-
-# READ AOs
-@app.route('/api/' + api_ver + '/write/all/uo/<io_num>', methods=['GET'])
-def write_ao_all(io_num=None):
-    print(io_num[0:3])
-    case_list = {}
-    # for item in ao_table:
-    #     case = {"val": item['val']}
-    #     case_list[item['ioNum']] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read UOs ok'}), http_success
 
 
 if __name__ == '__main__':
