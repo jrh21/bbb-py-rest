@@ -2,7 +2,6 @@
 
 # rest server
 
-from tinydb import TinyDB, Query
 from flask import Flask, jsonify, make_response
 from func import command_to_bool, is_float, analog_in, analog_out, digital_in, digital_out
 from io_types import analogInTypes, analogOutTypes, digitalInTypes, digitalOutTypes
@@ -10,13 +9,7 @@ from tests.test_data import case_list_test_analogue, case_list_test_digital, fak
 
 app = Flask(__name__)
 
-# DB for persisting data
-db = TinyDB('db/db.json')
-ai_table = db.table('ai_table')
-ao_table = db.table('ao_table')
-do_table = db.table('do_table')
-di_table = db.table('di_table')
-IO_DB = Query()
+
 #
 # # #
 # # # bbb gpio lib
@@ -89,18 +82,15 @@ def write_outputs_do(io_num=None, val=None):
     gpio = digital_out(io_num)
     io_num = io_num.upper()
     val = command_to_bool(val)
-    print(val)
     if gpio == -1:
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': digitalOutTypes}), http_error
     elif val is True:
         # GPIO.output(gpio, GPIO.HIGH)  # !! GPIO CALL !!!
-        do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
     elif val is False:
         # GPIO.output(gpio, GPIO.LOW)  # !! GPIO CALL !!!
-        do_table.update({'val': int(val)}, IO_DB.gpio == gpio)
         return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': int(val),
                         '5_msg': 'wrote value to the GPIO'}), http_success
     else:
@@ -121,7 +111,6 @@ def write_outputs_ao(io_num=None, val=None):
         val = float(val)
         if 0 <= val <= 100:
             # PWM.set_duty_cycle(gpio, val)  # !! GPIO CALL !!!
-            ao_table.update({'val': val}, IO_DB.gpio == gpio)
             return jsonify({'1_state': "writeOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                             '5_msg': 'wrote value to the GPIO'}), http_success
         else:
@@ -186,59 +175,59 @@ def read_ai_all():
     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
                     '5_msg': 'read UIs ok'}), http_success
 
-
-# READ ALL DOs
-@app.route('/api/' + api_ver + '/read/all/' + do, methods=['GET'])
-def read_do_all():
-    case_list = {}
-    for item in do_table:
-        case = {"val": item['val']}
-        case_list[item['ioNum']] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read DOs ok'}), http_success
-
-
-# READ ALL AOs
-@app.route('/api/' + api_ver + '/read/all/' + uo, methods=['GET'])
-def read_ao_all():
-    case_list = {}
-    for item in ao_table:
-        case = {"val": item['val']}
-        case_list[item['ioNum']] = case
-    return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
-                    '5_msg': 'read UOs ok'}), http_success
-
-
-# READ A DO
-
-@app.route('/api/' + api_ver + '/read/' + do + '/<io_num>', methods=['GET'])
-def read_do(io_num=None):
-    gpio = digital_out(io_num)
-    io_num = io_num.upper()
-    if gpio == -1:
-        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
-                        "5_msg": digitalOutTypes}), http_error
-    else:
-        result = do_table.get(Query()['gpio'] == gpio)
-        val = result.get("val")
-        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
-                        '5_msg': 'read value ok'}), http_success
-
-
-# READ A AO
-
-@app.route('/api/' + api_ver + '/read/' + uo + '/<io_num>', methods=['GET'])
-def read_ao(io_num=None):
-    gpio = analog_out(io_num)
-    io_num = io_num.upper()
-    if gpio == -1:
-        return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
-                        "5_msg": digitalOutTypes}), http_error
-    else:
-        result = ao_table.get(Query()['gpio'] == gpio)
-        val = result.get("val")
-        return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
-                        '5_msg': 'read value ok'}), http_success
+#
+# # READ ALL DOs
+# @app.route('/api/' + api_ver + '/read/all/' + do, methods=['GET'])
+# def read_do_all():
+#     case_list = {}
+#     for item in do_table:
+#         case = {"val": item['val']}
+#         case_list[item['ioNum']] = case
+#     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+#                     '5_msg': 'read DOs ok'}), http_success
+#
+#
+# # READ ALL AOs
+# @app.route('/api/' + api_ver + '/read/all/' + uo, methods=['GET'])
+# def read_ao_all():
+#     case_list = {}
+#     for item in ao_table:
+#         case = {"val": item['val']}
+#         case_list[item['ioNum']] = case
+#     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
+#                     '5_msg': 'read UOs ok'}), http_success
+#
+#
+# # READ A DO
+#
+# @app.route('/api/' + api_ver + '/read/' + do + '/<io_num>', methods=['GET'])
+# def read_do(io_num=None):
+#     gpio = digital_out(io_num)
+#     io_num = io_num.upper()
+#     if gpio == -1:
+#         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
+#                         "5_msg": digitalOutTypes}), http_error
+#     else:
+#         result = do_table.get(Query()['gpio'] == gpio)
+#         val = result.get("val")
+#         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
+#                         '5_msg': 'read value ok'}), http_success
+#
+#
+# # READ A AO
+#
+# @app.route('/api/' + api_ver + '/read/' + uo + '/<io_num>', methods=['GET'])
+# def read_ao(io_num=None):
+#     gpio = analog_out(io_num)
+#     io_num = io_num.upper()
+#     if gpio == -1:
+#         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
+#                         "5_msg": digitalOutTypes}), http_error
+#     else:
+#         result = ao_table.get(Query()['gpio'] == gpio)
+#         val = result.get("val")
+#         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
+#                         '5_msg': 'read value ok'}), http_success
 
 
 if __name__ == '__main__':
