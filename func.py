@@ -1,11 +1,23 @@
-def str_to_bool(x):
+def command_to_bool(x) -> bool:
     if x == 'true':
         return True
     elif x == 'false':
         return False
+    elif x == 1:
+        return True
+    elif x == 0:
+        return False
+    elif x == '1':
+        return True
+    elif x == '0':
+        return False
+    elif x == 'on':
+        return True
+    elif x == 'off':
+        return False
 
 
-def is_float(x):
+def is_float(x) -> bool:
     try:
         float(x)
         return True
@@ -13,9 +25,7 @@ def is_float(x):
         return False
 
 
-
-
-def analog_in(x):
+def analog_in(x) -> str:
     x = x.upper()
     return {
         'UI1': 'P9_39',
@@ -28,7 +38,7 @@ def analog_in(x):
     }.get(x, -1)
 
 
-def analog_out(x):
+def analog_out(x) -> str:
     x = x.upper()
     return {
         'UO1': 'P8_13',
@@ -41,7 +51,7 @@ def analog_out(x):
     }.get(x, -1)
 
 
-def digital_out(x):
+def digital_out(x) -> str:
     x = x.upper()
     return {
         'DO1': 'P8_7',
@@ -54,7 +64,7 @@ def digital_out(x):
     }.get(x, -1)
 
 
-def digital_in(x):
+def digital_in(x) -> str:
     x = x.upper()
     return {
         'DI1': 'P9_30',
