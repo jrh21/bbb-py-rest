@@ -13,7 +13,6 @@ On the bbb i had issues getting flask installed
 ```
 pip install -U pip setuptools wheel
 pip3 install flask
-pip3 install tinydb
 ```
 
 
@@ -98,13 +97,13 @@ http://0.0.0.0:5000/api/v1.0/read/all/ai
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/pwm
 
 ```
-UOs 0 = 0vdc and 100 = 12vdc
-http://0.0.0.0:5000/api/v1.0/write/uo/uo1/100
+UOs 0 = 12vdc and 100 = 0vdc (Yes its backwards)
+<io_num>/<val>/<pri>
+uo/uo1/22/16
+the priority (pri) is not supported yet but it's there for future use if needed
+http://0.0.0.0:5000/api/v1.0/write/uo/uo1/100/16
 // this returns the values that was stored in the DB (So not reading the actual pin value)
 
-read UOs
-http://0.0.0.0:5000/api/v1.0/read/uo/uo1
-// this returns the values that was stored in the DB (So not reading the actual pin value)
 ```
 
 
@@ -112,11 +111,11 @@ http://0.0.0.0:5000/api/v1.0/read/uo/uo1
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
 
 ```
+/<io_num>/<val>/<pri>
+the priority (pri) is not supported yet but it's there for future use if needed
 DOs true for high false for low
-http://0.0.0.0:5000/api/v1.0/write/do/do1/true
+http://0.0.0.0:5000/api/v1.0/write/do/do1/true/16
 
-read DOs
-http://0.0.0.0:5000/api/v1.0/read/do/do1
 
 ```
 
