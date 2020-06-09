@@ -28,9 +28,9 @@ Systemd script
 
 Create unit file in /lib/systemd/system/you_service_name.service with the following content (as far as I can see your python script doesn't spawn new process while running, so Type should be simple. More info here):
 ```
-nano /lib/systemd/system/bbb-py-rest-gpio.service
+nano /lib/systemd/system/bbio.service
 sudo systemctl daemon-reload
-sudo systemctl enable bbb-py-rest-gpio.service
+sudo systemctl enable bbio.service
 sudo service bbio start
 sudo service bbio stop
 sudo service bbio status
