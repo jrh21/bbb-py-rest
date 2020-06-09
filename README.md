@@ -12,6 +12,7 @@ On the bbb i had issues getting flask installed
 
 ```
 pip install -U pip setuptools wheel
+sudo apt install python3-pip // install pip3 if needed
 pip3 install flask
 ```
 
