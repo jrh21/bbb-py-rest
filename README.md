@@ -24,6 +24,21 @@ sudo apt-get install build-essential python-dev python-setuptools python-pip pyt
 sudo pip install Adafruit_BBIO
 ```
 
+Systemd script
+
+Create unit file in /lib/systemd/system/you_service_name.service with the following content (as far as I can see your python script doesn't spawn new process while running, so Type should be simple. More info here):
+```
+nano /lib/systemd/system/bbb-py-rest-gpio.service
+sudo systemctl daemon-reload
+sudo systemctl enable bbb-py-rest-gpio.service
+sudo service bbio start
+sudo service bbio stop
+sudo service bbio status
+
+```
+
+
+
 ### for testing 
 comment out all the `Adafruit_BBIO` libs 
 and uncomment the random values as below ``val = random.uniform(0, 1)  # for testing``
