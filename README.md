@@ -1,49 +1,42 @@
-
-### to start
+### To start
 ```
 python3 app.py 
 ```
 
-### install
+### Installation
+
+- `bash setup.bash`
+
+#### In details
 
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/installation-on-ubuntu
 
-On the bbb i had issues getting flask installed
+- `sudo apt-get update`
+- `sudo apt-get install build-essential python-dev python-setuptools python-pip python-smbus python-pip3 virtualenv -y`
+- `pip install -U pip setuptools wheel`
+- `rm -r venv` // remove virtual env, if exist
+- `virtualenv -p python3 venv` // creating virtual env with python3
+- `source /home/debian/bbb-py-rest/venv/bin/activate` // activating virtual env
+- `pip3 install -r requirements.txt` // installing the packages for this project
+- `deactivate` // deactivate current environment
 
-```
-pip install -U pip setuptools wheel
-// install pip3 if needed
-sudo apt install python3-pip 
-pip3 install flask
-```
+### Systemd Service
 
+- `sudo cp bbio.service /etc/systemd/system/`
+- `sudo systemctl daemon-reload`
+- `sudo systemctl enable bbio.service`
+- `sudo systemctl start bbio.service`
 
-```
-sudo apt-get update
-sudo apt-get install build-essential python-dev python-setuptools python-pip python-smbus -y
-sudo pip install Adafruit_BBIO
-```
+###### Other Systemd Commands
 
-Systemd script
+- `sudo systemctl stop bbio.service`
+- `sudo systemctl status bbio.service`
+- `sudo journalctl -f -u bbio.service`
 
-Create unit file in /lib/systemd/system/you_service_name.service with the following content (as far as I can see your python script doesn't spawn new process while running, so Type should be simple. More info here):
-```
-nano /lib/systemd/system/bbio.service
-sudo systemctl daemon-reload
-sudo systemctl enable bbio.service
-sudo service bbio start
-sudo service bbio stop
-sudo service bbio status
+### For testing
 
-```
-
-
-
-### for testing 
-comment out all the `Adafruit_BBIO` libs 
-and uncomment the random values as below ``val = random.uniform(0, 1)  # for testing``
-
-
+Comment out all the `Adafruit_BBIO` libs 
+& uncomment the random values as below ``val = random.uniform(0, 1)  # for testing``
 
 ```python
 @app.route('/api/' + api_ver + '/read/' + ui + '/<io_num>', methods=['GET'])
@@ -59,10 +52,9 @@ def read_ai(io_num=None):
                         '5_msg': 'read value ok'}), http_success
 ```
 
+##### Block port 5000
 
-##### block port 5000
-
-in ip tables -A is to add and -D is to delete an entry
+In ip tables -A is to add and -D is to delete an entry
 
 ```
 // only allow localhost access to port 5000
@@ -90,14 +82,11 @@ ui, uo, di, do
 // read all IOs as per type. like /read/all/ui
 /read/all/IO_TYPE
 
-
-
 ```
 
 #### Read a UI as a DI (jumper needs to be set to 10K)
 off/open = around 0.9 vdc
 on/closed = around 0.1 vdc
-
 
 
 ### read all
@@ -106,9 +95,7 @@ on/closed = around 0.1 vdc
 http://0.0.0.0:5000/api/v1.0/read/all/di
 // read all AIs
 http://0.0.0.0:5000/api/v1.0/read/all/ai
-
 ```
-
 
 #### UOs
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/pwm
@@ -120,9 +107,7 @@ uo/uo1/22/16
 the priority (pri) is not supported yet but it's there for future use if needed
 http://0.0.0.0:5000/api/v1.0/write/uo/uo1/100/16
 // this returns the values that was stored in the DB (So not reading the actual pin value)
-
 ```
-
 
 #### DOs
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
@@ -132,8 +117,6 @@ https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
 the priority (pri) is not supported yet but it's there for future use if needed
 DOs true for high false for low
 http://0.0.0.0:5000/api/v1.0/write/do/do1/true/16
-
-
 ```
 
 #### UIs
@@ -142,9 +125,8 @@ https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/adc
 ```
 UIs will return a float between 0 and 1
 http://0.0.0.0:5000/api/v1.0/read/ui/ui1
-
+x
 ```
-
 
 #### DIs
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
@@ -152,5 +134,4 @@ https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
 ```
 DIs will return a int either 0 and 1 (0 is on 1 is off)
 http://0.0.0.0:5000/api/v1.0/read/di/di1
-
 ```

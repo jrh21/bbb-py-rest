@@ -1,21 +1,18 @@
 #!flask/bin/python
 
-# rest server
+# REST server
 
 from flask import Flask, jsonify, make_response
 from func import command_to_bool, is_float, analog_in, analog_out, digital_in, digital_out
 from io_types import analogInTypes, analogOutTypes, digitalInTypes, digitalOutTypes
-from tests.test_data import case_list_test_analogue, case_list_test_digital, fake_analogue_data, fake_digital_data
+# from tests.test_data import case_list_test_analogue, case_list_test_digital, fake_analogue_data, fake_digital_data
 
 app = Flask(__name__)
 
 
-#
-# # #
-# # # bbb gpio lib
+# BBB GPIO Lib
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.PWM as PWM
-import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.ADC as ADC
 
 # DOs
@@ -32,7 +29,7 @@ GPIO.setup("P9_12", GPIO.OUT)
 # PWM.start("P9_14", 0, 1000, 1) // for startup
 # PWM.set_duty_cycle("P9_14", 0) //write 0v
 # PWM.set_duty_cycle("P9_14",100) //write 12v
-#
+
 PWM.start("P8_13", 0, 1000, 1)  # for startup
 PWM.start("P9_14", 0, 1000, 1)
 PWM.start("P9_21", 0, 1000, 1)
@@ -53,7 +50,7 @@ GPIO.setup("P9_27", GPIO.IN)
 # AIs
 ADC.setup()
 
-# api stuff
+# API stuff
 api_ver = '1.1'  # change version number as needed
 uo = 'uo'
 ui = 'ui'
@@ -70,13 +67,13 @@ def not_found(error):
     return make_response(jsonify({'error': 'try again :('}), http_error)
 
 
-## index page
+# index page
 @app.route('/', methods=['GET'])
 def index_page(io_num=None, val=None):
     return jsonify({'1_state': "whats up"}), http_success
 
 
-## WRITE DOs
+# WRITE DOs
 @app.route('/api/' + api_ver + '/write/' + do + '/<io_num>/<val>/<pri>', methods=['GET'])
 def write_outputs_do(io_num=None, val=None, pri=None):
     gpio = digital_out(io_num)
@@ -98,7 +95,7 @@ def write_outputs_do(io_num=None, val=None, pri=None):
                         '5_msg': 'value must be a boolean an int an string 1/0 or string on/off'}), http_error
 
 
-## WRITE AOs
+# WRITE AOs
 
 @app.route('/api/' + api_ver + '/write/' + uo + '/<io_num>/<val>/<pri>', methods=['GET'])
 def write_outputs_ao(io_num=None, val=None, pri=None):
@@ -122,8 +119,6 @@ def write_outputs_ao(io_num=None, val=None, pri=None):
 
 
 # READ DIs
-
-
 @app.route('/api/' + api_ver + '/read/' + di + '/<io_num>', methods=['GET'])
 def read_di(io_num=None):
     gpio = digital_in(io_num)
@@ -138,7 +133,6 @@ def read_di(io_num=None):
 
 
 #  READ UIs
-
 @app.route('/api/' + api_ver + '/read/' + ui + '/<io_num>', methods=['GET'])
 def read_ai(io_num=None):
     gpio = analog_in(io_num)
