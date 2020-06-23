@@ -12,6 +12,8 @@ On the bbb i had issues getting flask installed
 
 ```
 pip install -U pip setuptools wheel
+// install pip3 if needed
+sudo apt install python3-pip 
 pip3 install flask
 ```
 
@@ -21,6 +23,21 @@ sudo apt-get update
 sudo apt-get install build-essential python-dev python-setuptools python-pip python-smbus -y
 sudo pip install Adafruit_BBIO
 ```
+
+Systemd script
+
+Create unit file in /lib/systemd/system/you_service_name.service with the following content (as far as I can see your python script doesn't spawn new process while running, so Type should be simple. More info here):
+```
+nano /lib/systemd/system/bbio.service
+sudo systemctl daemon-reload
+sudo systemctl enable bbio.service
+sudo service bbio start
+sudo service bbio stop
+sudo service bbio status
+
+```
+
+
 
 ### for testing 
 comment out all the `Adafruit_BBIO` libs 

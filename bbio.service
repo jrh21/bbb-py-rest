@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=/home/debian/io_server
-Environment="FLASK_APP=/home/debian/io_server/app.py"
+User=debian
+WorkingDirectory=/home/debian/bbb-py-rest
+Environment="FLASK_APP=/home/debian/bbb-py-rest/app.py"
 ExecStart= /usr/bin/flask run --host 0.0.0.0
 Restart=on-abort
 
