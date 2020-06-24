@@ -12,7 +12,7 @@ python3 app.py
 https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/installation-on-ubuntu
 
 - `sudo apt-get update`
-- `sudo apt-get install build-essential python-dev python-setuptools python-pip python-smbus python-pip3 virtualenv -y`
+- `sudo apt-get install build-essential python-dev python-setuptools python-pip python-smbus python3-pip virtualenv -y`
 - `pip install -U pip setuptools wheel`
 - `rm -r venv` // remove virtual env, if exist
 - `virtualenv -p python3 venv` // creating virtual env with python3
