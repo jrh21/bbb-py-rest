@@ -135,3 +135,12 @@ https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/gpio
 DIs will return a int either 0 and 1 (0 is on 1 is off)
 http://0.0.0.0:5000/api/v1.0/read/di/di1
 ```
+## Cloning eMMc image to microSD card as a Flasher.
+* Boot off beaglebone on eMMc you wish to clone.
+* Insert a blank FAT formatted microSD card at least 4GB.
+* Login to your beaglebone and run the scripts
+```bash
+cd /opt/scripts/tools/eMMC
+sudo ./beaglebone-black-make-microSD-flasher-from-eMMC.sh
+```
+* Once finish, reboot and boot off the beaglebone using the microSD card as an image flasher
