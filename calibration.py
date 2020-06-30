@@ -32,4 +32,4 @@ def ui_scale(port, value):
                 slope = (meter_reading[i] - meter_reading[i + 1]) / (ui_raw[i] - ui_raw[i + 1])
                 value = meter_reading[i] + ((value - ui_raw[i]) * slope)
                 break
-    return value
+    return value/10
