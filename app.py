@@ -133,7 +133,7 @@ def read_ai(io_num=None):
         return jsonify({'1_state': "unknownType", '2_ioNum': io_num, '3_gpio': gpio, '4_val': 'null',
                         "5_msg": analogInTypes}), http_error
     else:
-        val = ui_scale(gpio, ADC.read(gpio))  # !!! GPIO CALL !!!
+        val = ui_scale(io_num, ADC.read(gpio))  # !!! GPIO CALL !!!
         # val = fake_analogue_data()  # !!! FOR TESTING !!!
         return jsonify({'1_state': "readOk", '2_ioNum': io_num, '3_gpio': gpio, '4_val': val,
                         '5_msg': 'read value ok'}), http_success
@@ -159,7 +159,7 @@ def read_ai_all():
     for key, value in analogInTypes.items():
         # val = ui_scale(value, ADC.read(value))
         # case = {"val": ADC.read(value)}
-        case = {"val": ui_scale(value, ADC.read(value))}
+        case = {"val": ui_scale(key, ADC.read(value))}
         case_list[key] = case
     return jsonify({'1_state': "readOk", '2_ioNum': "all", '3_gpio': "all", '4_val': case_list,
                     '5_msg': 'read UIs ok'}), http_success
