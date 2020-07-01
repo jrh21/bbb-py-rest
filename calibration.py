@@ -14,6 +14,7 @@ rawReads = {
 
 # Scaling function
 def ui_scale(port, value):
+    port = port.upper() # To uppercase; ie values UI1, UI2, etc.. 
     ui_raw = rawReads.get(port, ui1Raw)  # UI1 default values
     if value <= ui_raw[0]:
         # calculate slope at lower bounds
